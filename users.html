@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Liste des utilisateurs</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  h1 {
+    color: #4ea1f7;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  /* زر الرجوع بتصميم زر الصفحة الشخصية */
+  #backBtn {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #4ea1f7;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    border: 2px solid #4ea1f7;
+    padding: 8px 15px;
+    border-radius: 25px;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+  }
+  #backBtn:hover {
+    background-color: #4ea1f7;
+    color: #121212;
+  }
+  #usersList {
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    padding: 15px;
+  }
+  .user {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .user:last-child {
+    border-bottom: none;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-name {
+    font-weight: bold;
+    color: #4ea1f7;
+  }
+  .status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .online {
+    background-color: #4caf50;
+  }
+  .offline {
+    background-color: #888;
+  }
+  button {
+    background-color: #4ea1f7;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: #121212;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 5px;
+  }
+  button:hover {
+    background-color: #358be6;
+  }
+  #noUsers {
+    text-align: center;
+    color: #888;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<a id="backBtn" href="index.html">← Retour à l'accueil</a>
+
+<h1>Liste des utilisateurs</h1>
+
+<div id="usersList"></div>
+
+<script>
+  // جلب بيانات المستخدم الحالي (تسجيل الدخول)
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!currentUser) {
+    alert("Veuillez vous connecter d'abord.");
+    window.location.href = "login.html";
+  }
+
+  const usersListDiv = document.getElementById("usersList");
+
+  // تحميل المستخدمين من localStorage
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+  // استبعاد المستخدم الحالي من القائمة
+  users = users.filter(u => u.email !== currentUser.email);
+
+  // مثال بيانات حالة المستخدم (يمكنك تعديل هذه البيانات حسب النظام الحقيقي)
+  // هنا نفترض وجود مصفوفة أسماء البريد الإلكتروني للمستخدمين المتصلين
+  const onlineUsers = JSON.parse(localStorage.getItem("onlineUsers") || "[]");
+
+  if(users.length === 0) {
+    usersListDiv.innerHTML = '<div id="noUsers">Aucun autre utilisateur trouvé.</div>';
+  } else {
+    users.forEach(user => {
+      const userDiv = document.createElement("div");
+      userDiv.className = "user";
+
+      // تحقق من حالة الاتصال
+      const isOnline = onlineUsers.includes(user.email);
+
+      userDiv.innerHTML = `
+        <div class="user-info">
+          <div class="status ${isOnline ? 'online' : 'offline'}" title="${isOnline ? 'En ligne' : 'Hors ligne'}"></div>
+          <div class="user-name">${user.name}</div>
+        </div>
+        <div>
+          <button onclick="confirmChat('${user.email}')">Chatter</button>
+          <button onclick="viewProfile('${user.email}')">Profil</button>
+        </div>
+      `;
+
+      usersListDiv.appendChild(userDiv);
+    });
+  }
+
+  // تأكيد بدء الدردشة
+  function confirmChat(email) {
+    if (confirm("Voulez-vous vraiment démarrer une conversation avec cet utilisateur ?")) {
+      startChat(email);
+    }
+  }
+
+  // بدء الدردشة مع المستخدم المحدد
+  function startChat(email) {
+    localStorage.setItem("chatWith", email);
+    window.location.href = "chat.html";
+  }
+
+  // عرض صفحة الملف الشخصي للمستخدم
+  function viewProfile(email) {
+    localStorage.setItem("profileEmail", email);
+    window.location.href = "profile.html";
+  }
+</script>
+
+</body>
+</html>

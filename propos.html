@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>À propos</title>
+<style>
+  body {
+    background: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    color: #4ea1f7;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  #backBtn {
+    display: block;
+    margin: 10px auto 20px auto;
+    background: #4ea1f7;
+    color: #121212;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 150px;
+    text-align: center;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  #backBtn:hover {
+    background: #358be6;
+  }
+  .content {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  a {
+    color: #4ea1f7;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<h1>À propos</h1>
+
+<button id="backBtn" onclick="goBack()">← Retour à l'accueil</button>
+
+<div class="content">
+  <h2>Notre Application de Chat</h2>
+  <p>
+    Cette application permet aux utilisateurs de discuter avec leurs amis en temps réel. 
+    Elle utilise le stockage local du navigateur pour conserver les messages et les informations des utilisateurs.
+  </p>
+  <p>
+    Développé par <strong>Votre Nom</strong>, 2025.
+  </p>
+  <p>
+    Pour plus d'informations, visitez notre site web : 
+    <a href="https://votresite.com" target="_blank" rel="noopener">votresite.com</a>
+  </p>
+</div>
+
+<script>
+  function goBack() {
+    window.location.href = "index.html";
+  }
+</script>
+
+</body>
+</html>

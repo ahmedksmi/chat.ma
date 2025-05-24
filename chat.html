@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Chat avec Amis</title>
+<style>
+  body {
+    background: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 20px;
+  }
+  h1, h2 {
+    color: #4ea1f7;
+    text-align: center;
+  }
+  #backBtn {
+    display: block;
+    margin: 10px auto 20px auto;
+    background: #4ea1f7;
+    color: #121212;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 150px;
+    transition: background-color 0.3s;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  #backBtn:hover {
+    background: #358be6;
+  }
+  /* باقي التصميم كما هو */
+  #friendsList {
+    max-width: 300px;
+    background: #1e1e1e;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 0 auto 20px auto;
+    height: 170px;
+    overflow-y: auto;
+  }
+  #friendsList button {
+    width: 100%;
+    background: #333;
+    border: none;
+    color: #eee;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #friendsList button.active {
+    background: #4ea1f7;
+    color: #121212;
+    font-weight: bold;
+  }
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-left: 10px;
+  }
+  .online {
+    background-color: #4caf50;
+  }
+  .offline {
+    background-color: #888;
+  }
+  #chatBox {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #1e1e1e;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 420px;
+  }
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  .message {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    max-width: 70%;
+    clear: both;
+    position: relative;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  .message.sent {
+    background: #4ea1f7;
+    color: #121212;
+    margin-left: auto;
+  }
+  .message.received {
+    background: #333;
+    color: #eee;
+    margin-right: auto;
+  }
+  .timestamp {
+    font-size: 11px;
+    color: #bbb;
+    position: absolute;
+    bottom: -18px;
+    right: 10px;
+  }
+  #sendForm {
+    display: flex;
+    border-top: 1px solid #333;
+  }
+  #messageInput {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 0 0 0 8px;
+    font-size: 16px;
+    background: #2e2e2e;
+    color: #eee;
+  }
+  #sendBtn {
+    padding: 10px 20px;
+    border: none;
+    background: #4ea1f7;
+    color: #121212;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 0 0 8px 0;
+    transition: background-color 0.3s;
+  }
+  #sendBtn:hover {
+    background: #358be6;
+  }
+</style>
+</head>
+<body>
+
+<h1>Chat avec Amis</h1>
+
+<button id="backBtn" onclick="goBack()">← Retour à l'accueil</button>
+
+<div id="friendsList">
+  <!-- قائمة الأصدقاء ستظهر هنا -->
+</div>
+
+<div id="chatBox" style="display:none;">
+  <div id="messages"></div>
+  <form id="sendForm">
+    <input type="text" id="messageInput" placeholder="Écrivez un message..." autocomplete="off" />
+    <button type="submit" id="sendBtn">Envoyer</button>
+  </form>
+</div>
+
+<script>
+  function goBack() {
+    // جرب الرجوع للتاريخ السابق
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // إذا لا يوجد صفحة سابقة، اذهب مباشرة للصفحة الرئيسية
+      window.location.href = "index.html";
+    }
+  }
+
+  // باقي السكربت كما هو من كودك السابق
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  if(!currentUser || !currentUser.email) {
+    alert("Veuillez vous connecter d'abord.");
+    window.location.href = "login.html";
+  }
+
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+  users = users.filter(u => u.email !== currentUser.email);
+
+  let userStatus = JSON.parse(localStorage.getItem("userStatus") || "{}");
+
+  const friendsList = document.getElementById("friendsList");
+  const chatBox = document.getElementById("chatBox");
+  const messagesDiv = document.getElementById("messages");
+  const sendForm = document.getElementById("sendForm");
+  const messageInput = document.getElementById("messageInput");
+
+  let activeFriend = null;
+
+  function formatTimestamp(isoString) {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  }
+
+  function displayFriends() {
+    friendsList.innerHTML = "";
+    users.forEach(user => {
+      const btn = document.createElement("button");
+      btn.textContent = user.name || user.email;
+
+      const statusDot = document.createElement("span");
+      statusDot.classList.add("status-dot");
+      if(userStatus[user.email]) {
+        statusDot.classList.add("online");
+      } else {
+        statusDot.classList.add("offline");
+      }
+      btn.appendChild(statusDot);
+
+      btn.onclick = () => {
+        if(confirm(`Voulez-vous commencer une conversation avec ${user.name || user.email} ?`)) {
+          selectFriend(user);
+        }
+      };
+
+      if(activeFriend && activeFriend.email === user.email) {
+        btn.classList.add("active");
+      }
+      friendsList.appendChild(btn);
+    });
+  }
+
+  function loadChat() {
+    if(!activeFriend) return;
+    messagesDiv.innerHTML = "";
+    const emails = [currentUser.email, activeFriend.email].sort();
+    const chatKey = "chat_" + emails[0] + "_" + emails[1];
+    let chatMessages = JSON.parse(localStorage.getItem(chatKey) || "[]");
+
+    chatMessages.forEach(msg => {
+      const div = document.createElement("div");
+      div.classList.add("message");
+      div.classList.add(msg.from === currentUser.email ? "sent" : "received");
+      div.textContent = msg.text;
+
+      const timeSpan = document.createElement("span");
+      timeSpan.classList.add("timestamp");
+      timeSpan.textContent = formatTimestamp(msg.timestamp);
+      div.appendChild(timeSpan);
+
+      messagesDiv.appendChild(div);
+    });
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function selectFriend(user) {
+    activeFriend = user;
+    chatBox.style.display = "flex";
+    displayFriends();
+    loadChat();
+  }
+
+  sendForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const text = messageInput.value.trim();
+    if(!text || !activeFriend) return;
+
+    const emails = [currentUser.email, activeFriend.email].sort();
+    const chatKey = "chat_" + emails[0] + "_" + emails[1];
+    let chatMessages = JSON.parse(localStorage.getItem(chatKey) || "[]");
+
+    chatMessages.push({
+      from: currentUser.email,
+      to: activeFriend.email,
+      text: text,
+      timestamp: new Date().toISOString()
+    });
+
+    localStorage.setItem(chatKey, JSON.stringify(chatMessages));
+    messageInput.value = "";
+    loadChat();
+  });
+
+  displayFriends();
+</script>
+
+</body>
+</html>

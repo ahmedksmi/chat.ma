@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Modifier Profil & Mot de passe</title>
+<style>
+  body {
+    background: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    color: #4ea1f7;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  #backBtn {
+    display: block;
+    margin: 10px auto 30px auto;
+    background: #4ea1f7;
+    color: #121212;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 200px;
+    text-align: center;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  #backBtn:hover {
+    background: #358be6;
+  }
+  form {
+    max-width: 500px;
+    margin: 0 auto;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #a0c4ff;
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: none;
+    background: #2e2e2e;
+    color: #eee;
+    font-size: 15px;
+  }
+  button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background: #4ea1f7;
+    border: none;
+    border-radius: 6px;
+    color: #121212;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button[type="submit"]:hover {
+    background: #358be6;
+  }
+  .message {
+    max-width: 500px;
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .success {
+    background-color: #4caf50;
+    color: #121212;
+  }
+  .error {
+    background-color: #e03e3e;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<h1>Modifier Profil & Mot de passe</h1>
+<button id="backBtn" onclick="goBack()">← Retour à l'accueil</button>
+
+<form id="editForm">
+  <label for="name">Nom complet :</label>
+  <input type="text" id="name" name="name" required />
+
+  <label for="phone">Téléphone :</label>
+  <input type="text" id="phone" name="phone" />
+
+  <label for="dob">Date de naissance :</label>
+  <input type="date" id="dob" name="dob" />
+
+  <label for="address">Adresse :</label>
+  <input type="text" id="address" name="address" />
+
+  <hr style="margin: 20px 0; border-color: #333;" />
+
+  <label for="oldPassword">Mot de passe actuel :</label>
+  <input type="password" id="oldPassword" name="oldPassword" />
+
+  <label for="newPassword">Nouveau mot de passe :</label>
+  <input type="password" id="newPassword" name="newPassword" />
+
+  <label for="confirmPassword">Confirmer nouveau mot de passe :</label>
+  <input type="password" id="confirmPassword" name="confirmPassword" />
+
+  <button type="submit">Enregistrer les modifications</button>
+</form>
+
+<div id="messageBox"></div>
+
+<script>
+  function goBack() {
+    window.location.href = "index.html"; // زر العودة إلى الصفحة الرئيسية
+  }
+
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!currentUser) {
+    alert("Veuillez vous connecter d'abord.");
+    window.location.href = "login.html";
+  }
+
+  // تعبئة الحقول بقيم المستخدم الحالية
+  document.getElementById("name").value = currentUser.name || "";
+  document.getElementById("phone").value = currentUser.phone || "";
+  document.getElementById("dob").value = currentUser.dob || "";
+  document.getElementById("address").value = currentUser.address || "";
+
+  const form = document.getElementById("editForm");
+  const messageBox = document.getElementById("messageBox");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    messageBox.textContent = "";
+    messageBox.className = "";
+
+    const name = form.name.value.trim();
+    const phone = form.phone.value.trim();
+    const dob = form.dob.value;
+    const address = form.address.value.trim();
+
+    const oldPassword = form.oldPassword.value;
+    const newPassword = form.newPassword.value;
+    const confirmPassword = form.confirmPassword.value;
+
+    // تحقق من كلمة المرور إذا تم ملؤها
+    if(oldPassword || newPassword || confirmPassword) {
+      if(!oldPassword) {
+        showMessage("Veuillez saisir votre mot de passe actuel.", "error");
+        return;
+      }
+      if(oldPassword !== currentUser.password) {
+        showMessage("Mot de passe actuel incorrect.", "error");
+        return;
+      }
+      if(newPassword.length < 6) {
+        showMessage("Le nouveau mot de passe doit contenir au moins 6 caractères.", "error");
+        return;
+      }
+      if(newPassword !== confirmPassword) {
+        showMessage("La confirmation du mot de passe ne correspond pas.", "error");
+        return;
+      }
+    }
+
+    // تحديث بيانات المستخدم
+    currentUser.name = name;
+    currentUser.phone = phone;
+    currentUser.dob = dob;
+    currentUser.address = address;
+
+    if(newPassword) {
+      currentUser.password = newPassword;
+    }
+
+    // تحديث localStorage
+    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+    // تحديث المستخدم في قائمة "users" (لو عندك قائمة مستخدمين)
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+    let idx = users.findIndex(u => u.email === currentUser.email);
+    if(idx !== -1) {
+      users[idx] = currentUser;
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+
+    showMessage("Modifications enregistrées avec succès !", "success");
+
+    // مسح حقول كلمة المرور بعد التحديث
+    form.oldPassword.value = "";
+    form.newPassword.value = "";
+    form.confirmPassword.value = "";
+  });
+
+  function showMessage(msg, type) {
+    messageBox.textContent = msg;
+    messageBox.className = "message " + type;
+  }
+</script>
+
+</body>
+</html>

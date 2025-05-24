@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>FAQ - Questions fréquentes</title>
+<style>
+  body {
+    background: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    color: #4ea1f7;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  #backBtn {
+    display: block;
+    margin: 10px auto 30px auto;
+    background: #4ea1f7;
+    color: #121212;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 180px;
+    text-align: center;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  #backBtn:hover {
+    background: #358be6;
+  }
+  .faq-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #1e1e1e;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .faq-item {
+    border-bottom: 1px solid #333;
+    padding: 15px 0;
+  }
+  .faq-question {
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    padding-right: 25px;
+  }
+  .faq-question::after {
+    content: "+";
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 22px;
+    line-height: 20px;
+    transition: transform 0.3s;
+  }
+  .faq-question.active::after {
+    content: "-";
+  }
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+    padding-left: 10px;
+    margin-top: 8px;
+    color: #bbb;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .faq-answer.show {
+    max-height: 300px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Questions fréquentes (FAQ)</h1>
+
+<button id="backBtn" onclick="goBack()">← Retour à l'accueil</button>
+
+<div class="faq-container">
+  <div class="faq-item">
+    <div class="faq-question">Comment puis-je créer un compte ?</div>
+    <div class="faq-answer">
+      Vous pouvez créer un compte en cliquant sur le bouton "S'inscrire" sur la page d'accueil et en remplissant le formulaire d'inscription.
+    </div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-question">Comment réinitialiser mon mot de passe ?</div>
+    <div class="faq-answer">
+      Cliquez sur "Mot de passe oublié" sur la page de connexion, puis suivez les instructions envoyées à votre email.
+    </div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-question">Puis-je modifier mon profil après inscription ?</div>
+    <div class="faq-answer">
+      Oui, vous pouvez modifier vos informations personnelles dans la section "Mon Profil" après vous être connecté.
+    </div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-question">Comment contacter le support ?</div>
+    <div class="faq-answer">
+      Vous pouvez utiliser la page "Contact" pour envoyer vos questions ou préoccupations, nous vous répondrons rapidement.
+    </div>
+  </div>
+</div>
+
+<script>
+  function goBack() {
+    window.location.href = "index.html";
+  }
+
+  document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+      const active = question.classList.toggle('active');
+      const answer = question.nextElementSibling;
+      if (active) {
+        answer.classList.add('show');
+      } else {
+        answer.classList.remove('show');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

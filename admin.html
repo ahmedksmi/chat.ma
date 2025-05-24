@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel Amélioré</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+    }
+    .login-popup, .admin-panel {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .login-box {
+      background-color: #1e1e1e;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #2e2e2e;
+      color: #eee;
+      font-size: 16px;
+    }
+    .login-box button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4ea1f7;
+      color: #121212;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .toggle-password {
+      cursor: pointer;
+      color: #4ea1f7;
+      font-size: 14px;
+      user-select: none;
+      align-self: flex-end;
+      margin-top: -30px;
+      margin-bottom: 15px;
+    }
+    .error-msg, .success-msg {
+      text-align: center;
+      font-weight: bold;
+      display: none;
+      margin-bottom: 10px;
+    }
+    .error-msg {
+      color: #ff4c4c;
+    }
+    .success-msg {
+      color: #4caf50;
+    }
+
+    .admin-panel {
+      display: none;
+      background-color: #111;
+      width: 90vw;
+      max-width: 1000px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #222;
+      padding: 20px 30px;
+      flex-direction: column;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4ea1f7;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background-color: #222;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #444;
+      text-align: left;
+      font-size: 14px;
+      word-break: break-word;
+    }
+    th {
+      background-color: #333;
+    }
+    button.delete {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button.delete:hover {
+      background-color: #c62828;
+    }
+    button.logout-btn {
+      background-color: #4ea1f7;
+      color: #121212;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      align-self: flex-end;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .stats {
+      margin: 15px 0;
+      display: flex;
+      justify-content: space-around;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .change-pass-section {
+      margin-top: 20px;
+      background-color: #222;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .change-pass-section h2 {
+      margin-top: 0;
+      color: #4ea1f7;
+      font-size: 18px;
+    }
+    .change-pass-section input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 15px 0;
+      border-radius: 5px;
+      border: none;
+      background-color: #2e2e2e;
+      color: #eee;
+      font-size: 15px;
+    }
+    .change-pass-section button {
+      background-color: #4ea1f7;
+      border: none;
+      color: #121212;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login Popup -->
+<div class="login-popup" id="loginPopup">
+  <div class="login-box">
+    <input type="password" id="adminPassword" placeholder="Mot de passe admin" autocomplete="off" />
+    <span class="toggle-password" onclick="togglePassword()">Afficher / Masquer</span>
+    <button onclick="checkPassword()">Accéder</button>
+    <p class="error-msg" id="errorMsg">Mot de passe incorrect</p>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div class="admin-panel" id="adminPanel">
+  <button class="logout-btn" onclick="logout()">Déconnexion</button>
+  <h1>Panneau d'administration</h1>
+
+  <div class="stats">
+    <div>Utilisateurs : <span id="userCount">0</span></div>
+    <div>Commentaires : <span id="commentCount">0</span></div>
+  </div>
+
+  <h2>Utilisateurs</h2>
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Mot de passe</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Commentaires</h2>
+  <table id="commentTable">
+    <thead>
+      <tr>
+        <th>Auteur</th>
+        <th>Texte</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="change-pass-section">
+    <h2>Changer mot de passe admin</h2>
+    <input type="password" id="currentPass" placeholder="Mot de passe actuel" autocomplete="off" />
+    <input type="password" id="newPass" placeholder="Nouveau mot de passe" autocomplete="off" />
+    <input type="password" id="confirmPass" placeholder="Confirmer nouveau mot de passe" autocomplete="off" />
+    <button onclick="changeAdminPassword()">Changer</button>
+    <p class="error-msg" id="passErrorMsg"></p>
+    <p class="success-msg" id="passSuccessMsg"></p>
+  </div>
+</div>
+
+<script>
+  // كلمة مرور المدير الافتراضية
+  const ADMIN_PASSWORD_KEY = "admin_password";
+
+  if (!localStorage.getItem(ADMIN_PASSWORD_KEY)) {
+    localStorage.setItem(ADMIN_PASSWORD_KEY, "admin123");
+  }
+
+  function togglePassword() {
+    const input = document.getElementById("adminPassword");
+    input.type = (input.type === "password") ? "text" : "password";
+  }
+
+  function checkPassword() {
+    const input = document.getElementById("adminPassword").value;
+    const savedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
+    const errorMsg = document.getElementById("errorMsg");
+    if (input === savedPassword) {
+      document.getElementById("loginPopup").style.display = "none";
+      document.getElementById("adminPanel").style.display = "flex";
+      errorMsg.style.display = "none";
+      loadData();
+    } else {
+      errorMsg.style.display = "block";
+    }
+  }
+
+  function logout() {
+    document.getElementById("loginPopup").style.display = "flex";
+    document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("adminPassword").value = "";
+    document.getElementById("errorMsg").style.display = "none";
+    clearPassMessages();
+  }
+
+  function loadData() {
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+
+    document.getElementById("userCount").textContent = users.length;
+    document.getElementById("commentCount").textContent = comments.length;
+
+    const userTableBody = document.querySelector("#userTable tbody");
+    userTableBody.innerHTML = "";
+    users.forEach((user, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHTML(user.nom || "N/A")}</td>
+        <td>${escapeHTML(user.email)}</td>
+        <td>${escapeHTML(user.password)}</td>
+        <td>
+          <button class="delete" onclick="confirmDeleteUser(${index})">Supprimer</button>
+        </td>
+      `;
+      userTableBody.appendChild(tr);
+    });
+
+    const commentTableBody = document.querySelector("#commentTable tbody");
+    commentTableBody.innerHTML = "";
+    comments.forEach((comment, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHTML(comment.nom)}</td>
+        <td>${escapeHTML(comment.texte)}</td>
+        <td><button class="delete" onclick="confirmDeleteComment(${index})">Supprimer</button></td>
+      `;
+      commentTableBody.appendChild(tr);
+    });
+  }
+
+  function confirmDeleteUser(index) {
+    if (confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
+      deleteUser(index);
+    }
+  }
+
+  function confirmDeleteComment(index) {
+    if (confirm("Voulez-vous vraiment supprimer ce commentaire ?")) {
+      deleteComment(index);
+    }
+  }
+
+  function deleteUser(index) {
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    users.splice(index, 1);
+    localStorage.setItem("users", JSON.stringify(users));
+    loadData();
+  }
+
+  function deleteComment(index) {
+    const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+    comments.splice(index, 1);
+    localStorage.setItem("comments", JSON.stringify(comments));
+    loadData();
+  }
+
+  function clearPassMessages() {
+    document.getElementById("passErrorMsg").style.display = "none";
+    document.getElementById("passSuccessMsg").style.display = "none";
+  }
+
+  function changeAdminPassword() {
+    clearPassMessages();
+    const current = document.getElementById("currentPass").value;
+    const nouveau = document.getElementById("newPass").value;
+    const confirm = document.getElementById("confirmPass").value;
+    const savedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
+    const errMsg = document.getElementById("passErrorMsg");
+    const successMsg = document.getElementById("passSuccessMsg");
+
+    if (!current || !nouveau || !confirm) {
+      errMsg.textContent = "Veuillez remplir tous les champs.";
+      errMsg.style.display = "block";
+      return;
+    }
+
+    if (current !== savedPassword) {
+      errMsg.textContent = "Mot de passe actuel incorrect.";
+      errMsg.style.display = "block";
+      return;
+    }
+
+    if (nouveau !== confirm) {
+      errMsg.textContent = "Les nouveaux mots de passe ne correspondent pas.";
+      errMsg.style.display = "block";
+      return;
+    }
+
+    if (nouveau.length < 6) {
+      errMsg.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
+      errMsg.style.display = "block";
+      return;
+    }
+
+    localStorage.setItem(ADMIN_PASSWORD_KEY, nouveau);
+    successMsg.textContent = "Mot de passe changé avec succès.";
+    successMsg.style.display = "block";
+
+    // Effacer les champs
+    document.getElementById("currentPass").value = "";
+    document.getElementById("newPass").value = "";
+    document.getElementById("confirmPass").value = "";
+  }
+
+  // لحماية عرض النصوص (لمنع حقن HTML)
+  function escapeHTML(text) {
+    if (!text) return "";
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+</script>
+
+</body>
+</html>

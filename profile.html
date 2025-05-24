@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profil Utilisateur</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      color: #4ea1f7;
+      text-align: center;
+    }
+    .info {
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    a {
+      color: #4ea1f7;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #backButton {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #4ea1f7;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      border: 2px solid #4ea1f7;
+      padding: 8px 15px;
+      border-radius: 25px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    #backButton:hover {
+      background-color: #4ea1f7;
+      color: #121212;
+    }
+  </style>
+</head>
+<body>
+
+<a id="backButton" href="index.html">← Retour à la page d'accueil</a>
+
+<h1>Profil de l'utilisateur</h1>
+
+<div id="profileInfo" class="info">
+  Chargement des informations...
+</div>
+
+<script>
+  // دالة لجلب قيمة باراميتر من الرابط
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  const email = getQueryParam('email');
+
+  if(!email) {
+    document.getElementById('profileInfo').textContent = "Aucun utilisateur spécifié.";
+  } else {
+    // جلب بيانات المستخدمين من localStorage (مثلاً في مصفوفة users)
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.email === email);
+
+    if(!user) {
+      document.getElementById('profileInfo').textContent = "Utilisateur non trouvé.";
+    } else {
+      document.getElementById('profileInfo').innerHTML = `
+        <p><strong>Nom :</strong> ${user.name || 'Non spécifié'}</p>
+        <p><strong>Email :</strong> ${user.email}</p>
+        <p><strong>Téléphone :</strong> ${user.phone || 'Non spécifié'}</p>
+        <p><strong>Autres infos :</strong> ${user.otherInfo || 'Aucune'}</p>
+        <a href="chat.html?user=${encodeURIComponent(user.email)}">Démarrer une discussion</a>
+      `;
+    }
+  }
+</script>
+
+</body>
+</html>

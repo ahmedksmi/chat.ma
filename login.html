@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Connexion</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; margin: 0;
+  }
+  .login-box {
+    background: #1f1f1f;
+    padding: 30px;
+    border-radius: 10px;
+    width: 320px;
+    box-shadow: 0 0 10px #000;
+  }
+  h2 {
+    margin-bottom: 20px;
+    color: #4ea1f7;
+    text-align: center;
+  }
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 20px 0;
+    border-radius: 6px;
+    border: none;
+    background-color: #2e2e2e;
+    color: #eee;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4ea1f7;
+    color: #121212;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #358be6;
+  }
+  .register-link {
+    margin-top: 15px;
+    text-align: center;
+  }
+  .register-link a {
+    color: #4ea1f7;
+    text-decoration: none;
+  }
+  .error-msg {
+    background: #d9534f;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: none;
+  }
+  .success-msg {
+    background: #5cb85c;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <h2>Connexion</h2>
+  <div id="errorMsg" class="error-msg"></div>
+  <div id="successMsg" class="success-msg"></div>
+
+  <input type="email" id="email" placeholder="Email" required />
+  <input type="password" id="password" placeholder="Mot de passe" required />
+  <button onclick="login()">Se connecter</button>
+
+  <div class="register-link">
+    Pas encore de compte ? <a href="register.html">Créer un compte</a>
+  </div>
+</div>
+
+<script>
+  function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+    const successMsg = document.getElementById("successMsg");
+
+    errorMsg.style.display = "none";
+    successMsg.style.display = "none";
+
+    if (!email || !password) {
+      errorMsg.textContent = "Veuillez remplir tous les champs.";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+    const user = users.find(u => u.email === email && u.password === password);
+
+    if (!user) {
+      errorMsg.textContent = "Email ou mot de passe incorrect.";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    successMsg.textContent = "Connexion réussie !";
+    successMsg.style.display = "block";
+
+    // Stocker l’utilisateur connecté
+    localStorage.setItem("currentUser", JSON.stringify(user));
+
+    // Redirection (à adapter vers ta page d’accueil par exemple)
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 1500);
+  }
+</script>
+
+</body>
+</html>

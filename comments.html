@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Commentaires avec Images et Likes</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    color: #4ea1f7;
+    text-align: center;
+  }
+  #backButton {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #4ea1f7;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    border: 2px solid #4ea1f7;
+    padding: 8px 15px;
+    border-radius: 25px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  #backButton:hover {
+    background-color: #4ea1f7;
+    color: #121212;
+  }
+  form {
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  textarea {
+    width: 100%;
+    height: 80px;
+    background-color: #2e2e2e;
+    border: none;
+    border-radius: 6px;
+    color: #eee;
+    font-size: 16px;
+    padding: 10px;
+    resize: none;
+  }
+  input[type="file"] {
+    margin-top: 10px;
+    color: #eee;
+  }
+  button {
+    margin-top: 10px;
+    background-color: #4ea1f7;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    color: #121212;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .comment {
+    background-color: #1f1f1f;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    position: relative;
+  }
+  .comment .author {
+    color: #4ea1f7;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .comment .text {
+    margin-top: 8px;
+    white-space: pre-wrap;
+  }
+  .comment img {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 6px;
+  }
+  .comment .actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  .comment .actions button {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 8px;
+    transition: color 0.3s;
+  }
+  .comment .actions button:hover {
+    color: #f44336;
+  }
+  .like-btn {
+    background: transparent;
+    border: none;
+    color: #4ea1f7;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .like-btn.liked {
+    color: #f44336;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<a id="backButton" href="index.html">← Retour à la page d'accueil</a>
+
+<h1>Commentaires avec Images et Likes</h1>
+
+<form id="commentForm">
+  <textarea id="commentText" placeholder="Écrivez votre commentaire ici..." required></textarea>
+  <input type="file" id="commentImage" accept="image/*" />
+  <button type="submit">Publier</button>
+</form>
+
+<div id="commentsContainer"></div>
+
+<script>
+  // جلب المستخدم الحالي
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  if(!currentUser){
+    alert("Veuillez vous connecter pour publier des commentaires.");
+    window.location.href = "login.html";
+  }
+
+  const form = document.getElementById("commentForm");
+  const commentsContainer = document.getElementById("commentsContainer");
+
+  let comments = JSON.parse(localStorage.getItem("comments") || "[]");
+  
+  // جلب حالة الإعجاب من localStorage (مخزن بشكل: {"userEmail_commentIndex": true/false})
+  let likes = JSON.parse(localStorage.getItem("likes") || "{}");
+
+  function renderComments() {
+    commentsContainer.innerHTML = "";
+    comments.forEach((comment, index) => {
+      const div = document.createElement("div");
+      div.className = "comment";
+
+      // تحقق إذا المستخدم أعجب بالتعليق
+      const likeKey = `${currentUser.email}_${index}`;
+      const isLiked = likes[likeKey] === true;
+      const likeCount = comment.likes || 0;
+
+      div.innerHTML = `
+        <div class="author" onclick="visitProfile('${comment.authorEmail}')">${comment.author}</div>
+        <div class="text">${comment.text}</div>
+        ${comment.image ? `<img src="${comment.image}" alt="Image du commentaire" />` : ""}
+        <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(${index}, this)">
+          ❤️ <span>${likeCount}</span>
+        </button>
+        ${comment.authorEmail === currentUser.email ? `
+          <div class="actions">
+            <button onclick="editComment(${index})">Modifier</button>
+            <button onclick="deleteComment(${index})">Supprimer</button>
+          </div>
+        ` : ""}
+      `;
+
+      commentsContainer.appendChild(div);
+    });
+  }
+
+  function visitProfile(email){
+    // توجه لصفحة ملف المستخدم مع تمرير البريد في الرابط
+    window.location.href = `profile.html?email=${encodeURIComponent(email)}`;
+  }
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const text = document.getElementById("commentText").value.trim();
+    if(text === "") return;
+
+    const fileInput = document.getElementById("commentImage");
+    const file = fileInput.files[0];
+
+    if(file){
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        saveComment(text, event.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      saveComment(text, null);
+    }
+  });
+
+  function saveComment(text, imageData) {
+    comments.push({
+      author: currentUser.name,
+      authorEmail: currentUser.email,
+      text: text,
+      image: imageData,
+      timestamp: new Date().toISOString(),
+      likes: 0
+    });
+
+    localStorage.setItem("comments", JSON.stringify(comments));
+    form.reset();
+    renderComments();
+  }
+
+  function deleteComment(index) {
+    if(confirm("Voulez-vous vraiment supprimer ce commentaire ?")) {
+      comments.splice(index, 1);
+      localStorage.setItem("comments", JSON.stringify(comments));
+      // حذف الإعجابات المرتبطة بهذا التعليق
+      for(const key in likes){
+        if(key.endsWith(`_${index}`)){
+          delete likes[key];
+        }
+      }
+      localStorage.setItem("likes", JSON.stringify(likes));
+      renderComments();
+    }
+  }
+
+  function editComment(index) {
+    const newText = prompt("Modifier votre commentaire :", comments[index].text);
+    if(newText !== null) {
+      comments[index].text = newText.trim();
+      localStorage.setItem("comments", JSON.stringify(comments));
+      renderComments();
+    }
+  }
+
+  function toggleLike(index, btn) {
+    const likeKey = `${currentUser.email}_${index}`;
+    const isLiked = likes[likeKey] === true;
+
+    if(isLiked){
+      // إلغاء الإعجاب
+      likes[likeKey] = false;
+      comments[index].likes = (comments[index].likes || 1) - 1;
+      btn.classList.remove("liked");
+    } else {
+      // إعجاب جديد
+      likes[likeKey] = true;
+      comments[index].likes = (comments[index].likes || 0) + 1;
+      btn.classList.add("liked");
+    }
+
+    // تحديث عدد الإعجابات في الزر
+    btn.querySelector("span").textContent = comments[index].likes;
+
+    localStorage.setItem("likes", JSON.stringify(likes));
+    localStorage.setItem("comments", JSON.stringify(comments));
+  }
+
+  renderComments();
+</script>
+
+</body>
+</html>

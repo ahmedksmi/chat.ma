@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Inscription</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; margin: 0;
+  }
+  .register-box {
+    background: #1f1f1f;
+    padding: 30px;
+    border-radius: 10px;
+    width: 320px;
+    box-shadow: 0 0 10px #000;
+  }
+  h2 {
+    margin-bottom: 20px;
+    color: #4ea1f7;
+    text-align: center;
+  }
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 20px 0;
+    border-radius: 6px;
+    border: none;
+    background-color: #2e2e2e;
+    color: #eee;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4ea1f7;
+    color: #121212;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #358be6;
+  }
+  .login-link {
+    margin-top: 15px;
+    text-align: center;
+  }
+  .login-link a {
+    color: #4ea1f7;
+    text-decoration: none;
+  }
+  .error-msg {
+    background: #d9534f;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: none;
+  }
+  .success-msg {
+    background: #5cb85c;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="register-box">
+  <h2>Créer un compte</h2>
+  <div id="errorMsg" class="error-msg"></div>
+  <div id="successMsg" class="success-msg"></div>
+
+  <input type="text" id="fullname" placeholder="Nom complet" required />
+  <input type="email" id="email" placeholder="Email" required />
+  <input type="text" id="phone" placeholder="Téléphone" />
+  <input type="date" id="birthdate" placeholder="Date de naissance" />
+  
+  <select id="gender">
+    <option value="homme">Homme</option>
+    <option value="femme">Femme</option>
+  </select>
+
+  <select id="status">
+    <option value="célibataire">Célibataire</option>
+    <option value="marié">Marié</option>
+    <option value="divorcé">Divorcé</option>
+  </select>
+
+  <input type="password" id="password" placeholder="Mot de passe" required />
+
+  <button onclick="register()">S'inscrire</button>
+
+  <div class="login-link">
+    Déjà un compte ? <a href="login.html">Se connecter</a>
+  </div>
+</div>
+
+<script>
+  function register() {
+    const fullname = document.getElementById("fullname").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const birthdate = document.getElementById("birthdate").value;
+    const gender = document.getElementById("gender").value;
+    const status = document.getElementById("status").value;
+    const password = document.getElementById("password").value.trim();
+
+    const errorMsg = document.getElementById("errorMsg");
+    const successMsg = document.getElementById("successMsg");
+
+    errorMsg.style.display = "none";
+    successMsg.style.display = "none";
+
+    if (!fullname || !email || !password) {
+      errorMsg.textContent = "Veuillez remplir au moins le nom, l'email et le mot de passe.";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    // Supprimé la vérification de la syntaxe de l'email
+
+    if (password.length < 6) {
+      errorMsg.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+    if (users.some(u => u.email === email)) {
+      errorMsg.textContent = "Cet email est déjà utilisé.";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    users.push({
+      fullname,
+      email,
+      phone,
+      birthdate,
+      gender,
+      status,
+      password,
+      role: "user"
+    });
+    localStorage.setItem("users", JSON.stringify(users));
+
+    successMsg.textContent = "Inscription réussie ! Vous allez être redirigé...";
+    successMsg.style.display = "block";
+
+    document.getElementById("fullname").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("birthdate").value = "";
+    document.getElementById("password").value = "";
+
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 2000);
+  }
+</script>
+
+</body>
+</html>
