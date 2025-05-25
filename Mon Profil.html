@@ -127,7 +127,7 @@
 
 <script>
   function goBack() {
-    window.location.href = "index.html"; // زر العودة إلى الصفحة الرئيسية
+    window.location.href = "home.html"; // زر العودة إلى الصفحة الرئيسية
   }
 
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -137,7 +137,6 @@
     window.location.href = "login.html";
   }
 
-  // تعبئة الحقول بقيم المستخدم الحالية
   document.getElementById("name").value = currentUser.name || "";
   document.getElementById("phone").value = currentUser.phone || "";
   document.getElementById("dob").value = currentUser.dob || "";
@@ -160,7 +159,6 @@
     const newPassword = form.newPassword.value;
     const confirmPassword = form.confirmPassword.value;
 
-    // تحقق من كلمة المرور إذا تم ملؤها
     if(oldPassword || newPassword || confirmPassword) {
       if(!oldPassword) {
         showMessage("Veuillez saisir votre mot de passe actuel.", "error");
@@ -180,7 +178,6 @@
       }
     }
 
-    // تحديث بيانات المستخدم
     currentUser.name = name;
     currentUser.phone = phone;
     currentUser.dob = dob;
@@ -190,10 +187,8 @@
       currentUser.password = newPassword;
     }
 
-    // تحديث localStorage
     localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
-    // تحديث المستخدم في قائمة "users" (لو عندك قائمة مستخدمين)
     let users = JSON.parse(localStorage.getItem("users") || "[]");
     let idx = users.findIndex(u => u.email === currentUser.email);
     if(idx !== -1) {
@@ -203,7 +198,6 @@
 
     showMessage("Modifications enregistrées avec succès !", "success");
 
-    // مسح حقول كلمة المرور بعد التحديث
     form.oldPassword.value = "";
     form.newPassword.value = "";
     form.confirmPassword.value = "";
